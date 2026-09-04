@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""Run the local source tree without installing packaging tools."""
+
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from productivity_agent.cli import main
+
+main()
