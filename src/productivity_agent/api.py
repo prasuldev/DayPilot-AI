@@ -1,6 +1,6 @@
 """Optional FastAPI adapter. Install with `pip install fastapi uvicorn`."""
 
-from __future__ import annotations
+
 
 from datetime import date, datetime
 from pathlib import Path
