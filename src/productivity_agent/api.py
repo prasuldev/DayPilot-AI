@@ -12,7 +12,8 @@ from .storage import Repository
 
 def create_app(database_path: str | Path):
     try:
-        from fastapi import FastAPI, HTTPException
+       from fastapi import FastAPI, HTTPException
+       from fastapi.responses import HTMLResponse
         from pydantic import BaseModel
     except ImportError as error:
         raise RuntimeError("Install API support with: pip install fastapi uvicorn") from error
@@ -28,7 +29,59 @@ def create_app(database_path: str | Path):
         deadline: datetime | None = None
         goal_id: int | None = None
         recurrence: str = "none"
-
+    @app.get("/", response_class=HTMLResponse)
+def home():
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DayPilot AI | Your AI Productivity Assistant</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background: #0b1020;
+                color: white;
+                text-align: center;
+            }
+            main {
+                max-width: 800px;
+                margin: 120px auto;
+                padding: 24px;
+            }
+            h1 {
+                font-size: 52px;
+                margin-bottom: 16px;
+            }
+            p {
+                color: #b8c1d9;
+                font-size: 19px;
+                line-height: 1.7;
+            }
+            a {
+                display: inline-block;
+                margin-top: 25px;
+                padding: 15px 28px;
+                background: #635bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 10px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>DayPilot AI</h1>
+            <p>Your AI-powered productivity assistant.</p>
+            <p>Organize your tasks, plan your day, and make time for what matters.</p>
+            <a href="/docs">Explore API Documentation</a>
+        </main>
+    </body>
+    </html>
+    """
     @app.get("/health")
     def health():
         return {"status": "ok"}
