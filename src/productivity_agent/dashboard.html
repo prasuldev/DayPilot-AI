@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DayPilot AI | Personal Productivity</title>
+<style>
+:root {
+  --bg:#f5f6fc;--panel:#fff;--text:#182033;--muted:#778097;
+  --primary:#665cf0;--line:#e8eaf2;--green:#15966a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.layout{display:flex;min-height:100vh}
+aside{width:245px;background:#17182b;color:white;padding:28px 20px}
+.brand{font-size:23px;font-weight:800;margin-bottom:42px}
+.brand span{color:#9188ff}
+.nav{display:block;color:#c0c2d3;text-decoration:none;padding:13px;
+border-radius:10px;margin:7px 0}
+.nav.active,.nav:hover{background:#30314b;color:white}
+.side-note{margin-top:60px;color:#a4a7ba;font-size:12px;line-height:1.7}
+main{flex:1;padding:36px;max-width:1500px;margin:auto;width:100%}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+h1{font-size:29px;margin:0}
+.subtitle{color:var(--muted);margin-top:8px}
+.date{background:white;padding:12px 16px;border:1px solid var(--line);border-radius:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);
+border-radius:16px;padding:20px}
+.stat span{font-size:12px;color:var(--muted);text-transform:uppercase}
+.stat strong{display:block;font-size:28px;margin-top:9px}
+.stat.featured{background:linear-gradient(130deg,#665cf0,#8c73f6);color:white}
+.stat.featured span{color:#e8e4ff}
+.columns{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+.panel{margin-bottom:20px}
+h2{font-size:17px;margin:0 0 17px}
+form{display:flex;flex-wrap:wrap;gap:10px}
+input,select{padding:12px;border:1px solid var(--line);border-radius:9px;
+background:#fbfbfe;font:inherit;min-width:0}
+#task-title{flex:1;min-width:180px}
+button{border:0;background:var(--primary);color:white;padding:12px 17px;
+border-radius:9px;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(1.08)}
+.task{display:flex;align-items:center;justify-content:space-between;
+gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border:0}
+.task-name{font-weight:650}
+.meta{font-size:12px;color:var(--muted);margin-top:6px}
+.actions{display:flex;gap:7px}
+.actions button{padding:8px 10px;font-size:12px}
+.secondary{background:#eef0ff;color:#5b54d9}
+.danger{background:#fff0f0;color:#c33}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+.timeline{color:var(--muted);font-size:14px;line-height:1.8}
+@media(max-width:900px){.columns{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){aside{display:none}main{padding:20px 14px}
+header{align-items:flex-start}.date{display:none}.stats{gap:9px}
+.stat,.panel{padding:15px}.task{align-items:flex-start}.actions{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">✦ DayPilot <span>AI</span></div>
+  <a class="nav active" href="#overview">▦ &nbsp; Overview</a>
+  <a class="nav" href="#tasks">✓ &nbsp; My Tasks</a>
+  <a class="nav" href="#planner">◷ &nbsp; Daily Planner</a>
+  <div class="side-note">Your personal productivity workspace.<br><br>Plan your day. Focus on what matters.</div>
+</aside>
+
+<main>
+<header id="overview">
+  <div><h1>Good day 👋</h1>
+  <div class="subtitle">Make today productive, one task at a time.</div></div>
+  <div class="date" id="today"></div>
+</header>
+
+<section class="stats">
+  <div class="stat featured"><span>Active tasks</span><strong id="active">—</strong></div>
+  <div class="stat"><span>Scheduled</span><strong id="scheduled">—</strong></div>
+  <div class="stat"><span>Completed</span><strong id="completed">—</strong></div>
+  <div class="stat"><span>Total tasks</span><strong id="total">—</strong></div>
+</section>
+
+<div class="columns">
+<section>
+<div class="panel">
+<h2>＋ Add a new task</h2>
+<form id="add-form">
+<input id="task-title" placeholder="What do you need to do?" required>
+<select id="priority"><option value="high">High priority</option>
+<option value="medium" selected>Medium priority</option>
+<option value="low">Low priority</option></select>
+<select id="duration"><option value="15">15 min</option>
+<option value="30" selected>30 min</option><option value="45">45 min</option>
+<option value="60">1 hour</option><option value="90">90 min</option></select>
+<input id="deadline" type="date" aria-label="Deadline">
+<button type="submit">Add task</button>
+</form>
+</div>
+
+<div class="panel" id="tasks">
+<h2>My Tasks</h2>
+<div id="task-list" class="empty">Loading your tasks...</div>
+</div>
+</section>
+
+<section>
+<div class="panel" id="planner">
+<h2>✦ Plan your day</h2>
+<p class="subtitle">Choose your available working hours.</p>
+<form id="plan-form">
+<input id="start" type="time" value="09:00">
+<input id="end" type="time" value="17:00">
+<input id="break" type="number" min="0" value="10" style="width:90px">
+<button type="submit">Generate schedule</button>
+</form>
+<div class="timeline" id="schedule" style="margin-top:22px">
+Your schedule will appear here.
+</div>
+</div>
+<div class="panel">
+<h2>About DayPilot AI</h2>
+<p class="subtitle">Organize tasks, manage priorities and build a daily schedule around your available time.</p>
+</div>
+</section>
+</div>
+</main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+$("today").textContent = new Date().toLocaleDateString(undefined,
+ {weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+async function request(url, options={}) {
+  const response = await fetch(url, {
+    headers:{"Content-Type":"application/json"}, ...options
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.status===204 ? null : response.json();
+}
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+async function loadTasks() {
+  try {
+    const tasks = await request("/tasks");
+    $("total").textContent=tasks.length;
+    $("active").textContent=tasks.filter(t=>["pending","scheduled"].includes(t.status)).length;
+    $("scheduled").textContent=tasks.filter(t=>t.status==="scheduled").length;
+    $("completed").textContent=tasks.filter(t=>t.status==="completed").length;
+    $("task-list").className=tasks.length?"":"empty";
+    $("task-list").innerHTML=tasks.length?tasks.map(t=>{
+      const id=Number(t.id);
+      const done=t.status==="completed";
+      const title=t.title ?? "Untitled task";
+      const minutes=t.estimated_minutes ?? t.minutes_to_schedule ?? t.estimated_duration ?? "";
+      return `<div class="task">
+        <div><div class="task-name">${safe(title)}</div>
+        <div class="meta">${safe(t.priority)} · ${safe(minutes)} min · ${safe(t.status)}</div></div>
+        <div class="actions">
+        <button class="secondary" onclick="changeStatus(${id},'${done?'pending':'completed'}')">${done?'Reopen':'Complete'}</button>
+        </div></div>`;
+    }).join(""):"No tasks yet. Add your first task above.";
+  } catch(e) {
+    $("task-list").textContent="Could not load tasks: "+e.message;
+  }
+}
+async function changeStatus(id,status) {
+  try {
+    await request(`/tasks/${id}/status?status=${status}`,{method:"PATCH"});
+    loadTasks();
+  } catch(e) { alert("Could not update task: "+e.message); }
+}
+$("add-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const payload={
+    title:$("task-title").value,
+    priority:$("priority").value,
+    estimated_minutes:Number($("duration").value),
+    deadline:$("deadline").value ? $("deadline").value+"T23:59:00" : null
+  };
+  try {
+    await request("/tasks",{method:"POST",body:JSON.stringify(payload)});
+    $("add-form").reset();
+    loadTasks();
+  } catch(err) { alert("Could not add task: "+err.message); }
+});
+$("plan-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const today=new Date().toLocaleDateString("en-CA");
+  try {
+    const result=await request(`/plans/${today}?start=${$("start").value}&end=${$("end").value}&break_minutes=${$("break").value}`,{method:"POST"});
+    $("schedule").innerHTML=result.items?.length
+      ? result.items.map(item=>`<p><b>${safe(item.start_at)}</b> — ${safe(item.title)}</p>`).join("")
+      :"No schedule items were generated.";
+    loadTasks();
+  } catch(err) { alert("Could not generate schedule: "+err.message); }
+});
+loadTasks();
+</script>
+</body>
+</html>
